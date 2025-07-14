@@ -47,36 +47,22 @@ This capability aims to democratize data access, reduce analytics cycle time, an
 
 ## **Design Choices**
 
-### **a. System Architecture**
+### **System Architecture**
 
 * **Frontend:** [Chainlit](https://github.com/Chainlit/chainlit) for conversational chat interface
 * **Agent Orchestration:** [LangGraph](https://github.com/langchain-ai/langgraph) for managing LLM tool usage and reasoning steps
-* **Database:** PostgreSQL (via Docker Compose) for scalable, SQL-based analytics
-* **Data Layer:** Pandas for result manipulation and matplotlib/plotly for charting
+* **AI Model:** [Claude](https://docs.anthropic.com/en/docs/about-claude/models/overview) for robust language understanding, SQL query synthesis, and natural language explanation of results
+* **Data Layer:** [DuckDB](https://duckdb.org/) for quickly reading data stored in parquet format using sql language without spinning up a sql server
 
-### **b. Reasoning/Planning**
+![Solution Architecture](solution_architecture.drawio.png)
+
+### **Reasoning/Planning**
 
 * **LLM-driven tool-use:** Agent interprets business question, generates relevant SQL query, executes it, summarizes results, and (optionally) visualizes insights.
 * **Chain-of-thought tracing:** Each reasoning step (intent recognition, SQL construction, execution, summarization) can be logged and displayed for transparency.
 
-### **c. Modularity & Extensibility**
+### **Modularity & Extensibility**
+Each component (UI, agent, model, query engine) is loosely coupled, allowing easy swapping or scaling (e.g., to a cloud warehouse, or different LLM).
 
-* **Separation of Concerns:**
-
-  * DB setup and import scripts are independent from app logic
-  * Data-access layer abstracts DB connection from the agent logic
-  * Easily swap out charting or agent modules
-
-### **d. Tradeoffs**
-
-* Chose a relational DB (Postgres) for robust, well-known analytics workflow, at the cost of slightly more setup vs. Pandas-only
-* Focused on a single month for rapid prototyping and easier resource management
-* Leverages LLMs for SQL generation; this enables flexible user queries but requires careful prompt and tool design to ensure correctness
-
-
-## **4. Why This Design?**
-
-* Mimics realistic business-user workflows: ask, understand, visualize, act
-* Each piece (Chainlit, LangGraph, Postgres, charting) can be swapped or scaled as needed
-* The architecture supports easy demoing, debugging, and future productionization
+System is designed for transparency (chain-of-thought), rapid experimentation, and secure handling of sensitive data.
 
