@@ -1,0 +1,10 @@
+     column_name               column_type null   key default extra
+0     event_time  TIMESTAMP WITH TIME ZONE  YES  None    None  None
+1     event_type                   VARCHAR  YES  None    None  None
+2     product_id                    BIGINT  YES  None    None  None
+3    category_id                    BIGINT  YES  None    None  None
+4  category_code                   VARCHAR  YES  None    None  None
+5          brand                   VARCHAR  YES  None    None  None
+6          price                    DOUBLE  YES  None    None  None
+7        user_id                    BIGINT  YES  None    None  None
+8   user_session                   VARCHAR  YES  None    None  None

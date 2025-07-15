@@ -32,8 +32,7 @@ This capability aims to democratize data access, reduce analytics cycle time, an
 
 **Subset Used for Prototype:**
 
-* **Timeframe:** For this implementation, I use **November 2019** (`2019-Nov.csv`) and **October 2019** (`2019-Oct.csv`) as a representative sample
-
+* **Timeframe:** For this implementation, I use **November 2019** (`2019-Nov.csv`) as a representative sample
   * Balances high event volume with manageable file size for rapid prototyping and demonstration
 * **Categories:** All available product categories included to maximize business question diversity
 
@@ -45,7 +44,17 @@ This capability aims to democratize data access, reduce analytics cycle time, an
 * `brand`, `price`
 * `user_id`, `user_session`
 
+
 ## **Design Choices**
+
+For this project, I am following Anthropic’s framework from [Building Effective Agents](https://www.anthropic.com/engineering/building-effective-agents). In that blog post, Anthropic draws a key distinction between **workflows** and **agents**:
+
+> At Anthropic, we categorize all these variations as agentic systems, but draw an important architectural distinction between workflows and agents:
+>
+> * **Workflows** are systems where LLMs and tools are orchestrated through predefined code paths.
+> * **Agents**, on the other hand, are systems where LLMs dynamically direct their own processes and tool usage, maintaining control over how they accomplish tasks.
+
+In this project, I imagine the user as a business analyst who is exploring and questioning the data. Because this interaction is inherently inquisitive and open-ended, I have chosen to build an **agent architecture**—rather than a traditional workflow architecture—to allow the system to dynamically determine the best way to answer the user’s questions.
 
 ### **System Architecture**
 

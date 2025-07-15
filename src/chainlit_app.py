@@ -1,20 +1,32 @@
 import os
 import chainlit as cl
-from src.duckdb_utils import run_sql, get_table_schema
-from src.agent import generate_sql, summarize_result
+from langchain_core.messages import HumanMessage, BaseMessage
+from src.agent import agent
 
-# Path to your main Parquet data file
-PARQUET_PATH = os.path.join(os.getcwd(), "data", "2019-Nov.parquet")
 
 @cl.on_message
 async def handle_message(message):
-    question = message.content
-    table_schema = get_table_schema(PARQUET_PATH)
-    sql = generate_sql(question, table_schema)
-    await cl.Message(content=f"**Generated SQL:**\n```sql\n{sql}\n```").send()
-    try:
-        result = run_sql(sql, PARQUET_PATH)
-        summary = summarize_result(question, result)
-        await cl.Message(content=summary).send()
-    except Exception as e:
-        await cl.Message(content=f"Error running query: {e}").send()
+    # Build the initial HumanMessage (include parquet path in extra args)
+    user_msg = HumanMessage(
+        content=message.content,
+    )
+
+    # Stream through the agent
+    for chunk in agent.stream([user_msg], stream_mode="updates"):
+        # The chunk can be:
+        #  • an instance of BaseMessage (e.g. AIMessage)
+        #  • a dict mapping tool names to BaseMessage results
+        if isinstance(chunk, BaseMessage):
+            text = chunk.content
+        elif isinstance(chunk, dict):
+            # pick out all the BaseMessage values and concatenate
+            texts = []
+            for val in chunk.values():
+                if isinstance(val, BaseMessage):
+                    texts.append(val.content)
+            text = "\n".join(texts)
+        else:
+            # fallback
+            text = str(chunk)
+
+        await cl.Message(content=text).send()

@@ -1,0 +1,50 @@
+About this file
+This file contains behavior data for a one month (November 2019) from a large multi-category online store, collected by Open CDP project.
+Each row in the file represents an event. All events are related to products and users. There are different types of events.
+
+Columns:
+
+event_time
+When event is was happened (UTC)
+
+event_type text
+Event type: one of [view, cart, remove_from_cart, purchase]
+
+product_id id
+Product ID
+
+category_id id
+Product category ID
+
+category_code text
+Category meaningful name (if present)
+
+brand text
+Brand name in lower case (if present)
+
+price number
+Product price
+
+user_id id
+Permanent user ID
+
+user_session id
+User session ID
+
+Distributions of select columns:
+
+event_type 
+view 94%
+cart 4%
+Other (916939) 1%
+
+category_code
+[null] 32%
+electronics.smartphone 24%
+Other (29228808) 43%
+
+brand
+[null] 14%
+samsung 12%
+Other (50394499) 75%
+

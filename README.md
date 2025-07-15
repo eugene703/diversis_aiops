@@ -66,13 +66,13 @@ Then open the provided local URL to start asking business questions in the chat 
 .
 ├── data/                # Parquet data files (auto-generated)
 ├── src/
-│   ├── agent.py         # Agent logic (LLM-to-SQL and analysis)
-│   ├── duckdb_tools.py  # Fast SQL queries over Parquet files
+│   ├── agent.py         # Main Agent orchestration logic
+│   ├── tools.py         # Sub Agents and functions to help the main agent
 │   └── chainlit_app.py  # Chainlit chat app
 ├── import_data.py       # Download and convert dataset to Parquet
 ├── requirements.txt
 ├── .env.example
-├── design_doc.md        # Documentation with justifications for design choices and 
+├── design_doc.md        # Documentation with justifications for design choices 
 └── README.md
 ```
 
