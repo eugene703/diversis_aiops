@@ -1,6 +1,9 @@
 # Take Home Project for Diversis AIOPS
 
-This project demonstrates an AI-powered data-insight chat analyst agent that enables business users to ask natural language questions over e-commerce clickstream data. The agent translates user questions into SQL, runs them over a large dataset (67M rows), and returns insights as plain English and charts—all in a modern chat interface.
+This project demonstrates an AI-powered data-insight chat analyst agent that enables business users to ask natural language questions over e-commerce clickstream data. 
+The agent answers user's questions by using tools
+- Query tool that translates user questions into SQL, runs them over a large dataset, and returns a table. 
+- Visualization tool that creates insightful charts.
 
 ---
 
@@ -28,7 +31,7 @@ pip install -r requirements.txt
 
 ### **3. Environment Variables**
 
-Create a `.env` file in the project root with the following (replace with your actual keys):
+Create a `.env` file in the project root with the following (replace with your actual keys). Use `.env.example` as a template:
 
 ```env
 ANTHROPIC_API_KEY=your_anthropic_key
@@ -53,7 +56,7 @@ Parquet files will be saved to the `data/` folder.
 ### **5. Run the Application**
 
 ```bash
-PYTHONPATH=$(pwd) chainlit run src/chainlit_app.py
+chainlit run src/chainlit_app.py
 ```
 
 Then open the provided local URL to start asking business questions in the chat UI!
@@ -65,6 +68,8 @@ Then open the provided local URL to start asking business questions in the chat 
 ```
 .
 ├── data/                # Parquet data files (auto-generated)
+├── .chainlit/           # chainlit related files (auto-generated)
+│   └── tmp/             # charts created from the agents (auto-generated)
 ├── src/
 │   ├── agent.py         # Main Agent orchestration logic
 │   ├── tools.py         # Sub Agents and functions to help the main agent
@@ -83,7 +88,7 @@ Then open the provided local URL to start asking business questions in the chat 
 * **Ask business questions** in natural language via the chat UI
 * **Agent generates SQL** queries to answer your questions
 * **Queries run on DuckDB** directly over Parquet files for high performance (no database server needed)
-* **Results are displayed** in plain English and optionally as charts
+* **Results are displayed** in plain English and as tables and charts (downloaded)
 
 ---
 
@@ -97,8 +102,4 @@ Then open the provided local URL to start asking business questions in the chat 
 
 ## **Contact / Questions**
 
-For any questions about setup or architecture, please contact \[Your Name Here] or open an issue.
-
----
-
-Let me know if you want a more technical/brief/verbose version, or a separate “About the Problem” or “Design Choices” section!
+For any questions about setup or architecture, please contact Eugene Cho.
