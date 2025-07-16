@@ -6,6 +6,8 @@ from langchain_anthropic import ChatAnthropic
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langgraph.graph import add_messages
 from langgraph.func import task, entrypoint
+from langchain_experimental.tools.python.tool import PythonREPLTool
+
 
 from langchain_core.messages import (
     SystemMessage,
@@ -82,6 +84,9 @@ def query_db(question: str, max_retries: int = 2) -> dict:
             + "- If your SQL query is multi-line, escape all line breaks with \\n as required by JSON.\n"
             + "- Do NOT output any text before or after the JSON.\n"
             + "- This sql query is for DuckDB, so do not use json_group_array or json_object. stay in DuckDB syntax"
+            + "- In the JSON, do NOT escape single quotes in your SQL. Only use double quotes for JSON and single quotes for SQL as normal. Do not output any backslashes unless absolutely necessary (e.g., for newlines in SQL)."
+            + "In DuckDB, DESCRIBE can't be used directly on read_parquet(). Instead, you can do:"
+            + "DESCRIBE SELECT * FROM read_parquet('/home/echo/diversis_aiops/data/2019-Nov.parquet')"            
             + "\n\n"
             + "Table schema:\n"
             + f"Table name is read_parquet('{PARQUET_PATH}')\n"
@@ -120,9 +125,43 @@ def query_db(question: str, max_retries: int = 2) -> dict:
 
     return f"All {max_retries+1} attempts failed. Last error: {error_msg}. Please try a different query or try again later."
 
+# Define python repl object that can do .run()
+@tool
+def python_repl_loop(code: str, max_retries: int = 2) -> dict:
+    """
+    Execute Python code using LangChain's PythonREPLTool with automatic retry logic.
+
+    This function attempts to execute the provided Python code using LangChain's PythonREPLTool.
+    If an error occurs during execution, it will retry the code up to `max_retries` times before returning an error message.
+
+    Parameters
+    ----------
+    code : str
+        The Python code to execute.
+    max_retries : int, optional
+        The maximum number of additional attempts to make if execution fails (default is 2).
+
+    Returns
+    -------
+    dict
+        {"result": ...} containing the output of the successfully executed code, 
+        or {"error": ...} with the last error message if all attempts fail.
+    """
+    python_repl = PythonREPLTool()
+    attempt = 0
+    error_msg = ""
+    while attempt <= max_retries:
+        try:
+            result = python_repl.run(code)
+            return {"result": result}
+        except Exception as e:
+            error_msg = str(e)
+            attempt += 1
+    return {"error": f"All {max_retries+1} attempts failed. Last error: {error_msg}"}
+
 
 ## wrap them up together
-tools = [query_db, ] #build_chart
+tools = [query_db, python_repl_loop]
 tools_by_name = {tool.name: tool for tool in tools}
 llm_with_tools = llm.bind_tools(
     tools,
@@ -142,6 +181,31 @@ def call_llm(messages: list[BaseMessage]):
                 Make sure you understand the user's intention before querying the data set, 
                 Use tools as needed to answer the user's data questions.
                 {tools_by_name}
+                If the user asks for a chart or visualization, use the `python_repl_loop` tool to write Python code that visualizes the dataframe.
+                Find the best way to visualize the data set given the user's intent with their question.
+                Use `python_repl_loop` ONLY for visualization tasks. If you need the underlying data, use `query_db` to fetch the data and then feed it to `python_repl`.
+                When you generate a chart or image, always save it to a session-specific directory inside the .chainlit/tmp/ folder in the current working directory. 
+                Use the current date (formatted as YYYY-MM-DD, for example, "2024-07-16") as the session ID.
+                The directory path should be .chainlit/tmp/session_\{current_date\}/, where {current_date} is today's date.
+                * The directory path should be .chainlit/tmp/session_\{session_id\}/, where {session_id} is a unique identifier for the session.                
+                * Be sure to create the tmp and session-specific subfolder if they do not already exist (os.makedirs(..., exist_ok=True)).
+                * Name the file clearly, such as chart.png, output.png, etc.
+                * Return only the relative or absolute file path to the saved image, so it can be accessed or displayed in the app.
+
+                Example (Python with matplotlib):
+                ```python
+                import os
+                from datetime import date
+                session_id = date.today().isoformat()  # e.g., '2024-07-16'
+                session_dir = os.path.join('.chainlit', 'tmp', f'session_{session_id}')
+                os.makedirs(session_dir, exist_ok=True)
+                file_path = os.path.join(session_dir, 'chart.png')
+                # Save your figure
+                plt.savefig(file_path)
+                print(f"Image saved to: {file_path}")```
+                If the tool allows, return the file path or a file URL for later retrieval by the app or UI.
+                Do not output a base64 string—only output the file path to the saved image.
+                
                 """
             )
         ]
