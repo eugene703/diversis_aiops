@@ -111,7 +111,7 @@ The agent's core loop is:
 
 ## **Next Steps**
 
-* Add automated testing to systematically evaluate output quality
+* Create a testing framework to evaluate output quality
 * Implement token caching to reduce LLM usage cost
 * Develop a memory system to track user sessions and enable more contextual, multi-turn conversations
 
