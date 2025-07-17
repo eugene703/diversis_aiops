@@ -113,5 +113,6 @@ The agent's core loop is:
 
 * Create a testing framework to evaluate output quality
 * Implement token caching to reduce LLM usage cost
+* Add in security features like structured output or COT assessment before running code in REPL
 * Develop a memory system to track user sessions and enable more contextual, multi-turn conversations
 
